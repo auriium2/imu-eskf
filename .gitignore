@@ -1,0 +1,6 @@
+**/.pio
+**/compile_commands.json
+**/.ropeproject
+**/.cache
+.cache
+embedded/.cache

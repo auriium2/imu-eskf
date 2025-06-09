@@ -1,0 +1,20 @@
+{
+  "languages": {
+    "C++": {
+      "enable_language_server": true
+    }
+  },
+
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "path_lookup": true,
+        "path": "clangd",
+        "arguments": [
+          //"--compile-commands-dir=~/platformiodbg/compile_commands.json", //DONT USE THIS
+          "--query-driver=/Users/matt/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-*"
+        ]
+      }
+    }
+  }
+}
