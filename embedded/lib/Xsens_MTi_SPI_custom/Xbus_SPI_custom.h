@@ -28,7 +28,9 @@ class Xbus {
       MAGNETOMETER        = 0xC020,
       LATLON              = 0x5040,
       DELTAQ              = 0x8030,
-      DELTAV              = 0x4010
+      DELTAV              = 0x4010,
+      HR_ACC = 0x4040,
+      HR_GYR = 0x8040,
     };
 
     bool read(uint8_t address);

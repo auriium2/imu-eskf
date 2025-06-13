@@ -12,34 +12,32 @@ namespace eskf {
         -v.y(), v.x(), 0;
     }
 
-    //TODO i need to optimize this thing lol
-    static inline Eigen::Quaternionf qExp(const Eigen::Vector3f& theta) {
-        float ang = theta.norm();
-        if(ang < 1e-8f) return Eigen::Quaternionf::Identity();
-        Eigen::Vector3f axis = theta / ang;
-        float s = std::sin(0.5f*ang);
-        return Eigen::Quaternionf(std::cos(0.5f*ang), axis.x()*s, axis.y()*s, axis.z()*s);
-    }
 
-    void ESKF::integrate(const Vec3& a_m, const Vec3& w_m, float dt) {
-        a_tilde = a_m - a_b;
+
+    /**
+     * a_m is the measured acceleration in the local frame
+     * so a_b must be the
+     */
+    void ESKF::integrate(const Eigen::Vector3f& a_m, const Eigen::Vector3f& w_m, float dt) {
+        a_tilde = a_m - a_b ;
         skew(S, a_tilde); //S = skew(tilde)
-        R_b2w = q.toRotationMatrix();
-        Vec3 a_w = R_b2w * a_tilde + g;
+        R_b2w = q.toRotationMatrix(); //We know q is
+        a_w = (R_b2w * a_tilde) + g; //gravity is already negative, so the real acceleration felt is a_tilde_world (free) + g
 
         //euler 12
-        p += v * dt; //+ 0.5 * a_w * dt * dt;
+        p += v * dt + 0.5 * a_w * dt * dt;
         v += a_w * dt;
         q = (q * qExp((w_m - w_b)*dt)).normalized();
     }
 
-    void ESKF::predict(const Vec3& a_m, const Vec3& w_m, float dt) {
+    void ESKF::predict(const Eigen::Vector3f& a_m, const Eigen::Vector3f& w_m, float dt) {
         //Position Prediction
+        Fx = Fx.Identity();
         Fx.block<3,3>(0 , 3).diagonal().setConstant(dt);
 
         //Velocity Prediction
-        Fx.block<3,3>(3,6) = -R_b2w * S * dt;
-        Fx.block<3,3>(3,9)  = -R_b2w * dt;
+        Fx.block<3,3>(3,6).noalias() = -R_b2w * S * dt;
+        Fx.block<3,3>(3,9).noalias()  = -R_b2w * dt;
 
         //Heading Prediction
         skew(Omega, w_m - w_b); //Omega = skew(omegam-omegab)

@@ -54,7 +54,7 @@ void MTi::getFilterProfile() {
   sendMessage(reqFilterProfile, sizeof(reqFilterProfile));
   delay(1000);
 
-  readMessages();  
+  readMessages();
 }
 
 void MTi::getBaudRate() {
@@ -136,6 +136,41 @@ void MTi::configureOutputs() {
   readMessages();
 }
 
+
+
+void MTi::configureOutputsAdv(const std::vector<OutputConfigEntry>& outputs) {
+  if (!deviceInConfigMode()) {
+    Serial.println("Cannot configure device. Device is not in Config Mode.");
+    return;
+  }
+  readMessages();
+
+  Serial.println("Configuring with advanced parameters.");
+
+  // Calculate the length of the payload
+  size_t payloadBytes = outputs.size() * 4; // 4 bytes for each entry [ID_MSB, ID_LSB, RATE_MSB, RATE_LSB]
+  std::vector<uint8_t> configMsg;
+  configMsg.reserve(2 + payloadBytes);
+
+  configMsg.push_back(0xC0); // SetOutputConfiguration command
+  configMsg.push_back(static_cast<uint8_t>(payloadBytes));
+
+  for (const auto& entry : outputs) {
+    // Append ID and rate in big-endian format
+    configMsg.push_back(static_cast<uint8_t>((entry.id >> 8) & 0xFF));
+    configMsg.push_back(static_cast<uint8_t>(entry.id & 0xFF));
+    configMsg.push_back(static_cast<uint8_t>((entry.rateHz >> 8) & 0xFF));
+    configMsg.push_back(static_cast<uint8_t>(entry.rateHz & 0xFF));
+  }
+
+  sendMessage(configMsg.data(), configMsg.size());
+  Serial.println("Advanced configuration sent.");
+
+  // Let the MTi process it
+  delay(1000);
+  readMessages();
+}
+
 void MTi::configureOutputs(const std::vector<uint16_t>& outputs) {
   if (!deviceInConfigMode()) {
     Serial.println("Cannot configure device. Device is not in Config Mode.");
@@ -158,6 +193,7 @@ void MTi::configureOutputs(const std::vector<uint16_t>& outputs) {
   msg.push_back(length);
 
   for (auto id : outputs) {
+
     // ID big-endian
     msg.push_back(static_cast<uint8_t>( (id >> 8) & 0xFF ));
     msg.push_back(static_cast<uint8_t>(  id        & 0xFF ));
@@ -169,7 +205,7 @@ void MTi::configureOutputs(const std::vector<uint16_t>& outputs) {
   // send it off
   sendMessage(msg.data(), msg.size());
   Serial.println("Configuration sent.");
-  
+
   // let the MTi process it
   delay(1000);
   readMessages();

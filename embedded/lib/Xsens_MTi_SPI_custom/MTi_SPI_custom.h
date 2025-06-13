@@ -5,6 +5,12 @@
 #include <vector>
 #include "Xbus_SPI_custom.h"
 
+
+struct OutputConfigEntry {
+  uint16_t id;      // Output ID
+  uint16_t rateHz;  // Update rate in Hz
+};
+
 class MTi {
 public:
     MTi(uint8_t x, uint8_t y) : xbus() {
@@ -24,6 +30,11 @@ public:
     void configureOutputs();
     // Custom configuration: specify XDI outputs and rate (Hz)
     void configureOutputs(const std::vector<uint16_t>& outputs);
+
+    void configureOutputs(const uint8_t& outputConfig);
+
+    void configureOutputsAdv(const std::vector<OutputConfigEntry>& outputs);
+
 
     void goToConfig();
     void goToMeasurement();
