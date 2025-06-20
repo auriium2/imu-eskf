@@ -35,6 +35,10 @@ class Xbus {
 
     bool read(uint8_t address);
 
+    float HR_acc[3];                     //Used to store latest high rate acc
+    float HR_gyr[3];                     //Used to store latest high rate gyro reading
+
+
     float acc[3];                     //Used to store latest Acceleration reading
     float freeAcc[3];                 //Used to store latest FreeAcceleration reading
     float gyr[3];                     //Used to store latest RateOfTurn reading

@@ -1,1 +1,5 @@
 .pio
+src/gen
+.cache
+.cache/**
+src/arduino_secrets.h

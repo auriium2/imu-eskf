@@ -1,7 +1,6 @@
 #include "Debias.h"
 #include "Prelude.h"
-#include "usb/SerialUSB.h"
-#include <cstdio>
+//#include "usb/SerialUSB.h"
 
 
 namespace eskf {
@@ -89,28 +88,6 @@ namespace eskf {
 
         g_world_i_mean += (g_world_i - g_world_i_mean) / num_samples;
 
-        Serial.print("the sample is ");
-        Serial.print(ba_sample.x());
-        Serial.print(" ");
-        Serial.print(ba_sample.y());
-        Serial.print(" ");
-        Serial.print(ba_sample.z());
-        Serial.print(" and the real is ");
-        Serial.print(a_m.x());
-        Serial.print(" ");
-        Serial.print(a_m.y());
-        Serial.print(" ");
-        Serial.print(a_m.z());
-        Serial.print(" and the gravity is ");
-        Serial.print(g_world_i.x());
-        Serial.print(" ");
-        Serial.print(g_world_i.y());
-        Serial.print(" ");
-        Serial.println(g_world_i.z());
-
-
-
-
     }
 
     // Finalize the calibration - compute final covariances
@@ -142,9 +119,6 @@ namespace eskf {
         Mat3 P_pos = var_pos.asDiagonal();
 
         Mat3 P_g = M2_g / (num_samples - 1);
-
-        Serial.println("completed activities");
-
 
         // //build initial conditions
 

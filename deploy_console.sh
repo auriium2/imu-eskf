@@ -1,5 +1,4 @@
 ./build.sh
 cd embedded
 pio run --target upload || { echo 'Upload failed'; exit 1; }
-cd ../../viz
-uv run viz.py
+pio device monitor -b 460800

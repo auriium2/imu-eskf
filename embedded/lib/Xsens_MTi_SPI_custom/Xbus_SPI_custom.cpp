@@ -43,7 +43,7 @@ bool Xbus::read(uint8_t nCS) {
 
 void Xbus::readPipeStatus(uint8_t nCS) {
   uint8_t buffer[] = {XSENS_STATUS_PIPE, 0xFF, 0xFF, 0xFF};
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
   digitalWrite(nCS, LOW);
   SPI.transfer(buffer, sizeof(buffer));
   for (int i = 0; i < 4; i++) {
@@ -59,7 +59,7 @@ void Xbus::readPipeStatus(uint8_t nCS) {
 
 void Xbus::readPipeNotif(uint8_t nCS) {
   uint8_t buffer[] = {XSENS_NOTIF_PIPE, 0xFF, 0xFF, 0xFF};
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
   digitalWrite(nCS, LOW);
   SPI.transfer(buffer, sizeof(buffer));
   for (int i = 0; i < notificationSize; i++) {
@@ -73,7 +73,7 @@ void Xbus::readPipeNotif(uint8_t nCS) {
 
 void Xbus::readPipeMeas(uint8_t nCS) {
   uint8_t buffer[] = {XSENS_MEAS_PIPE, 0xFF, 0xFF, 0xFF};
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
   digitalWrite(nCS, LOW);
   SPI.transfer(buffer, sizeof(buffer));
   for (int i = 0; i < measurementSize; i++) {
@@ -96,6 +96,14 @@ void Xbus::parseMTData2(uint8_t* data, uint8_t datalength) {
   } else {
     uint8_t length = data[2];
     switch (((uint16_t)data[1] | ((uint16_t)data[0] << 8)) & (uint16_t)0xFFFF) { //Extract the 2-byte Xsens Data Identifier
+      case (uint16_t)DataID::HR_ACC:
+        dataswapendian(data + 3, sizeof(float) * 3);
+        memcpy(HR_acc, data + 3, sizeof(float) * 3);
+        break;
+      case (uint16_t)DataID::HR_GYR:
+        dataswapendian(data + 3, sizeof(float) * 3);
+        memcpy(HR_gyr, data + 3, sizeof(float) * 3);
+        break;
       case (uint16_t)DataID::ACCELERATION:
         dataswapendian(data + 3, sizeof(float) * 3);
         memcpy(acc, data + 3, sizeof(float) * 3);
@@ -254,7 +262,8 @@ void Xbus::parseNotification(uint8_t* notif) {                                  
 
 
 
-void Xbus::dataswapendian(uint8_t* data, uint8_t length) {                          //Swap the endianness of the data such that the float value can be printed
+
+inline void Xbus::dataswapendian(uint8_t* data, uint8_t length) {                          //Swap the endianness of the data such that the float value can be printed
   uint8_t cpy[length];                                                              //Create a copy of the data
   memcpy(cpy, data, length);                                                        //Create a copy of the data
   for (int i = 0; i < length / 4; i++) {

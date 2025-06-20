@@ -2,5 +2,12 @@
 **/compile_commands.json
 **/.ropeproject
 **/.cache
-.cache
-embedded/.cache
+
+
+**/eskf_lib/build/**
+**/eskf_lib/CMakeFiles/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+**/install_manifest.txt

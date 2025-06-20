@@ -237,7 +237,7 @@ void MTi::sendMessage(uint8_t *message, uint8_t numBytes) {
 
   uint8_t buffer[] = {XSENS_CONTROL_PIPE, 0xFF, 0xFF, 0xFF};
 
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
+  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
   digitalWrite(nCS, LOW);
   SPI.transfer(buffer, sizeof(buffer));
   SPI.transfer(message, numBytes + 1);
@@ -251,7 +251,6 @@ void MTi::readMessages() {                                                      
     xbus.read(nCS);
   }
 }
-
 
 void MTi::printData() {
   if (!isnan(getAcceleration()[0])) {                                                                       //Only true if this data has been received once before

@@ -43,6 +43,9 @@ public:
     void printData();
 
     // Accessors
+    float* getHRAcceleration() {return xbus.HR_acc; }
+    float* getHRGyro() {return xbus.HR_gyr; }
+
     float* getAcceleration()       { return xbus.acc; }
     float* getFreeAcceleration()   { return xbus.freeAcc; }
     float* getRateOfTurn()         { return xbus.gyr; }
@@ -64,6 +67,8 @@ private:
 
 // XDI message identifiers for configureOutputs()
 static constexpr uint16_t XDI_Acceleration      = 0x4020;
+static constexpr uint16_t XDI_HR_Acceleration      = 0x4040;
+static constexpr uint16_t XDI_HR_Gyro      = 0x8040;
 static constexpr uint16_t XDI_FreeAcceleration  = 0x4030;
 static constexpr uint16_t XDI_RateOfTurn        = 0x8020;
 static constexpr uint16_t XDI_Quaternion        = 0x2010;

@@ -19,15 +19,15 @@ namespace eskf {
      * so a_b must be the
      */
     void ESKF::integrate(const Eigen::Vector3f& a_m, const Eigen::Vector3f& w_m, float dt) {
-        a_tilde = a_m - a_b ;
+        a_tilde = a_m - state.a_b ;
         skew(S, a_tilde); //S = skew(tilde)
-        R_b2w = q.toRotationMatrix(); //We know q is
-        a_w = (R_b2w * a_tilde) + g; //gravity is already negative, so the real acceleration felt is a_tilde_world (free) + g
+        R_b2w = state.q.toRotationMatrix(); //We know q is
+        a_w = (R_b2w * a_tilde) + state.g; //gravity is already negative, so the real acceleration felt is a_tilde_world (free) + g
 
         //euler 12
-        p += v * dt + 0.5 * a_w * dt * dt;
-        v += a_w * dt;
-        q = (q * qExp((w_m - w_b)*dt)).normalized();
+        state.p += state.v * dt + 0.5 * a_w * dt * dt;
+        state.v += a_w * dt;
+        state.q = (state.q * qExp((w_m - state.w_b)*dt)).normalized();
     }
 
     void ESKF::predict(const Eigen::Vector3f& a_m, const Eigen::Vector3f& w_m, float dt) {
@@ -40,7 +40,7 @@ namespace eskf {
         Fx.block<3,3>(3,9).noalias()  = -R_b2w * dt;
 
         //Heading Prediction
-        skew(Omega, w_m - w_b); //Omega = skew(omegam-omegab)
+        skew(Omega, w_m - state.w_b); //Omega = skew(omegam-omegab)
         Fx.block<3,3>(6,6)  = Mat3::Identity() - Omega*dt;
         Fx.block<3,3>(6,12).diagonal().setConstant(-dt);
 
@@ -57,6 +57,23 @@ namespace eskf {
         Q.block<12,12>(3,3).diagonal() = pn;
 
         P = Fx * P * Fx.transpose() + Q;
+    }
+
+    void ESKF::getHorizontalVel(float& v_fw, float& v_lat) const {
+        // Get the rotation matrix from body to world frame
+        Eigen::Matrix3f R = state.q.toRotationMatrix();
+        
+        // The heading direction is the x-axis of the body frame rotated to world frame
+        Eigen::Vector3f heading = R.col(0);
+        heading.z() = 0;  // Project to horizontal plane
+        heading.normalize();
+        
+        // The lateral direction is perpendicular to the heading in the horizontal plane
+        Eigen::Vector3f lateral(-heading.y(), heading.x(), 0);
+        
+        // Project velocity onto these directions
+        v_fw = state.v.dot(heading);
+        v_lat = state.v.dot(lateral);
     }
 
 }
